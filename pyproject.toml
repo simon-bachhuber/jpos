@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=69.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "imt-jpos"
+version = "0.0.1"
+authors = [
+  { name="Simon Bachhuber", email="simon.bachhuber@fau.de" },
+]
+description = "JPOS: Joint Position Estimation"
+readme = "readme.md"
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "jaxlib",
+    "jax",
+    "jaxopt",
+    "numpy",
+    "scipy",
+]
+
+[project.urls]
+Homepage = "https://github.com/SimiPixel/jpos"
+Issues = "https://github.com/SimiPixel/jpos/issues"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
