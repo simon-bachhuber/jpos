@@ -67,6 +67,8 @@ def solve(
 ):
     """Joint Translation Estimation. Estimates the vector from joint center to IMU 1
     and IMU2 where the IMU1 is rigidly attached and the IMU2 is nonrigidly attached.
+    If `order`=0, then this reduces to this algorithm:
+    https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=6402423
 
     Args:
         acc1 (np.ndarray): Nx3, m/s**2, with or without gravity
