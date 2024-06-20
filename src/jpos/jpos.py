@@ -1,3 +1,4 @@
+from typing import Optional
 import warnings
 
 import jax
@@ -62,6 +63,7 @@ def solve(
     order: int = 2,
     verbose: bool = False,
     n_grid_points: int = 50,
+    seed: Optional[int] = None,
 ):
     """Joint Translation Estimation. Estimates the vector from joint center to IMU 1
     and IMU2 where the IMU1 is rigidly attached and the IMU2 is nonrigidly attached.
@@ -78,12 +80,19 @@ def solve(
         verbose (bool, optional): Print information to stdout. Defaults to False.
         n_grid_points (int, optional): Number of grid points in the `joint-to-imu2-grid`
             return value. Defaults to 50.
+        seed (int, optional): Seed used for initilization of the optimization. By
+            default this function is non-deterministic. Fixing the seed makes this
+            function deterministic.
 
     Returns:
-        tuple: joint-to-imu1-vector, joint-to-imu2-grid, infos
+        tuple: Array (3,), Array (Nx3), dict
+        which are joint-to-imu1-vector, joint-to-imu2-timeseries, and infos dictionary
         where both joint-to-imu vectors are given in the respective local sensor
         coordinate system in meters.
     """
+    if seed is not None:
+        np.random.seed(seed)
+
     T = acc1.shape[0]
     for arr in [acc1, gyr1, acc2, gyr2]:
         assert arr.shape == (
@@ -114,6 +123,8 @@ def solve(
     gyrdot2 = _dot(gyr2, hz)
     phidot = _dot(phi, hz)
     phidotdot = _dot(phidot, hz)
+    # convert from (N, 1) -> (N,)
+    phi, phidot, phidotdot = phi[:, 0], phidot[:, 0], phidotdot[:, 0]
 
     def residual(x, acc1, gyr1, gyrdot1, acc2, gyr2, gyrdot2, phi, phidot, phidotdot):
         r1 = x[:3]
@@ -139,9 +150,9 @@ def solve(
             acc2,
             gyr2,
             gyrdot2,
-            phi[:, 0],
-            phidot[:, 0],
-            phidotdot[:, 0],
+            phi,
+            phidot,
+            phidotdot,
         )
         return jnp.mean(e**2)
 
@@ -155,11 +166,14 @@ def solve(
         jnp.min(phi), jnp.max(phi), endpoint=True, num=n_grid_points
     )
     r2_grid = jax.vmap(_poly_predict, in_axes=(None, 0))(params[3:], phi_grid)
+    r1 = params[:3]
+    r2 = jax.vmap(_poly_predict, in_axes=(None, 0))(params[3:], phi)
     return (
-        params[:3],
-        r2_grid,
+        r1,
+        r2,
         {
             "phi_grid_rad": phi_grid,
+            "r2_grid_m": r2_grid,
             "final residual m/s**2": final_residual,
             "polynomial_coefs": params[3:],
             "jaxopt_results": res,

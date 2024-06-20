@@ -1,7 +1,7 @@
 # JPOS: Joint Position Estimation
 
 ## Installation
-`pip install imt-qpos`
+`pip install git+https://github.com/SimiPixel/jpos.git`
 
 ## Usage
 ```python
@@ -13,8 +13,6 @@ hz: float = 60
 # acc1, acc2: Nx3 in m/s**2
 # gyr, gyr2: Nx3 in rad/s
 r1, r2, infos = solve(acc1, gyr1, acc2, gyr2, phi, hz)
-# joint to imu1 vector in meters: r1.shape = (3,)
-# joint to imu2 vector in meters evaluated at 50 grid points within [phi_min, phi_max]
-# r2.shape = (50, 3)
-
+# joint to imu1 vector in meters: r1.shape = 3
+# timeseries of joint to imu2 vector in meters: r2.shape = Nx3
 ```
