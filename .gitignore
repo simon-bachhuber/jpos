@@ -2,3 +2,4 @@ paper
 __pycache__
 *.egg*
 .DS_Store
+jpos_old.py
