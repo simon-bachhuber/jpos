@@ -58,7 +58,7 @@ def solve(
     gyr1: np.ndarray,
     acc2: np.ndarray,
     gyr2: np.ndarray,
-    phi: np.ndarray,
+    phi: np.ndarray | None,
     hz: float,
     order: int = 2,
     verbose: bool = False,
@@ -75,7 +75,7 @@ def solve(
         gyr1 (np.ndarray): Nx3, rad/s
         acc2 (np.ndarray): Nx3, m/s**2 with or without gravity
         gyr2 (np.ndarray): Nx3, rad/s
-        phi (np.ndarray): Joint angle over time in radians, unused if `order`=0
+        phi (np.ndarray | None): Joint angle over time in radians, unused if `order`=0
         hz (float): Sampling rate, Hz
         order (int, optional): Order of the polynomial of joint translation of second
             IMU. Defaults to 2.
@@ -104,6 +104,10 @@ def solve(
             "All IMU data must be given as a Nx3 array with consistent number of "
             + f"samples `N` but found {arr.shape}"
         )
+
+    if phi is None:
+        assert order == 0, "`phi` can only be `None` if `order`=0"
+        phi = np.zeros((T, 1))
 
     for arr in [gyr1, gyr2, phi]:
         max_val = np.max(np.abs(arr))

@@ -25,12 +25,14 @@ gyr1 = np.zeros((N, 3))
 gyr2 = np.zeros((N, 3))
 
 # phi is the hinge joint angle over time in radians: Nx1
+# phi can also be set to `None` if `order`=0, then a constant offset vector r is estimated
+# instead of a function r(phi)
 phi = np.zeros((N, 1))
 
 # solve for the vector that connects the hinge joint's center of rotation to the
 # - r1: center of the first imu, in coordinates of the imu1
 # - r2: center of the second imu, in coordinates of the imu2
-r1, r2, infos = solve(acc1, gyr1, acc2, gyr2, phi, hz)
+r1, r2, infos = solve(acc1, gyr1, acc2, gyr2, phi, hz, order=2)
 
 # the connection to the first imu is assumed to be rigid and not depend on the
 # hinge joint angle phi, r1 is given in meters
