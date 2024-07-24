@@ -91,6 +91,7 @@ def solve(
         which are joint-to-imu1-vector, joint-to-imu2-timeseries, and infos dictionary
         where both joint-to-imu vectors are given in the respective local sensor
         coordinate system in meters.
+        If `order`=0, then instead of (Nx3) also returns (3,) for joint-to-imu2 vector
     """
     if seed is not None:
         np.random.seed(seed)
@@ -174,6 +175,10 @@ def solve(
     r2_grid = jax.vmap(_poly_predict, in_axes=(None, 0))(params[3:], phi_grid)
     r1 = params[:3]
     r2 = jax.vmap(_poly_predict, in_axes=(None, 0))(params[3:], phi)
+
+    if order == 0:
+        r2 = r2[0]
+
     return (
         r1,
         r2,
